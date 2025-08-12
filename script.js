@@ -1,6 +1,5 @@
-const productsContainer = document.getElementById("products");
-const lnk = "https://art-frenzy-admin.onrender.com";  // removed leading space
 
+const productsContainer = document.getElementById("products");
 const locationModal = document.getElementById("locationModal");
 const dropLocationInput = document.getElementById("dropLocation");
 const buyerNameInput = document.getElementById("buyerName");
@@ -13,9 +12,7 @@ const alertBox = document.getElementById("customAlert");
 const alertMessage = document.getElementById("alertMessage");
 const closeAlertBtn = document.getElementById("closeAlertBtn");
 
-const whatsappFaqBtn = document.getElementById("whatsappFaqBtn");
-
-let selectedProductId = null;
+let currentProductId = null;
 
 function showAlert(message) {
   alertMessage.textContent = message;
@@ -25,15 +22,10 @@ function showAlert(message) {
 
 closeAlertBtn.onclick = () => alertBox.classList.add("hidden");
 
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text)
-    .then(() => showAlert(`Mpesa number ${text} copied to clipboard! Please pay and paste the confirmation code.`))
-    .catch(() => showAlert("Could not copy Mpesa number to clipboard. Please copy it manually: " + text));
-}
-
-async function loadProducts() {
+// Load products for client view
+async function loadClientProducts() {
   try {
-    const res = await fetch(`${lnk}/products`);  // assuming /products endpoint
+    const res = await fetch(`${API_BASE}/products`);  // Note: your backend needs this endpoint or use /admin/products and filter if needed
     const products = await res.json();
 
     productsContainer.innerHTML = products
@@ -50,7 +42,7 @@ async function loadProducts() {
 
     productsContainer.querySelectorAll("button:not(:disabled)").forEach(btn => {
       btn.onclick = () => {
-        selectedProductId = Number(btn.dataset.id);
+        currentProductId = Number(btn.dataset.id);
         locationModal.style.display = "block";
         buyerNameInput.focus();
       };
@@ -62,7 +54,9 @@ async function loadProducts() {
 
 document.getElementById("cancelBuy").onclick = () => {
   locationModal.style.display = "none";
-  [dropLocationInput, buyerNameInput, buyerPhoneInput].forEach(input => input.value = "");
+  dropLocationInput.value = "";
+  buyerNameInput.value = "";
+  buyerPhoneInput.value = "";
 };
 
 document.getElementById("confirmBuy").onclick = () => {
@@ -71,22 +65,22 @@ document.getElementById("confirmBuy").onclick = () => {
   const dropLocation = dropLocationInput.value.trim();
 
   if (!buyerName || !buyerPhone || !dropLocation) {
-    showAlert("Please fill in your name, phone, and drop location.");
+    showAlert("Please fill in all fields.");
     return;
   }
 
   if (!/^2547\d{8}$/.test(buyerPhone)) {
-    showAlert("Please enter a valid phone number in the format 2547xxxxxxxx.");
+    showAlert("Enter valid phone number: 2547xxxxxxxx");
     return;
   }
 
   const purchaseTime = new Date().toISOString();
 
-  fetch(`${lnk}/purchase`, {
+  fetch(`${API_BASE}/purchase`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      product_id: selectedProductId,
+      product_id: currentProductId,
       buyer_name: buyerName,
       buyer_phone: buyerPhone,
       drop_location: dropLocation,
@@ -96,21 +90,23 @@ document.getElementById("confirmBuy").onclick = () => {
   .then(res => res.json())
   .then(data => {
     if (data.error) {
-      showAlert(`Purchase error: ${data.error}`);
+      showAlert("Purchase error: " + data.error);
       return;
     }
-
     locationModal.style.display = "none";
-    [dropLocationInput, buyerNameInput, buyerPhoneInput].forEach(input => input.value = "");
+    dropLocationInput.value = "";
+    buyerNameInput.value = "";
+    buyerPhoneInput.value = "";
 
-    const mpesaNumber = "254712472601"; // Your business Mpesa number
-    copyToClipboard(mpesaNumber);
-
-    transactionIdInput.value = "";
-    transactionModal.style.display = "block";
-    transactionIdInput.focus();
+    const mpesaNumber = "254712472601"; // Your Mpesa number
+    navigator.clipboard.writeText(mpesaNumber).then(() => {
+      showAlert(`Mpesa number ${mpesaNumber} copied to clipboard! Please pay and paste confirmation code.`);
+      transactionIdInput.value = "";
+      transactionModal.style.display = "block";
+      transactionIdInput.focus();
+    });
   })
-  .catch(() => showAlert("Error submitting purchase. Please try again."));
+  .catch(() => showAlert("Error submitting purchase. Try again."));
 };
 
 document.getElementById("cancelTransaction").onclick = () => {
@@ -128,11 +124,11 @@ document.getElementById("confirmTransaction").onclick = () => {
 
   const paymentTime = new Date().toISOString();
 
-  fetch(`${lnk}/submit-transaction`, {
+  fetch(`${API_BASE}/submit-transaction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      product_id: selectedProductId,
+      product_id: currentProductId,
       transaction_id: transactionId,
       payment_time: paymentTime,
     }),
@@ -140,25 +136,20 @@ document.getElementById("confirmTransaction").onclick = () => {
   .then(res => res.json())
   .then(data => {
     if (data.error) {
-      showAlert(`Transaction error: ${data.error}`);
+      showAlert("Transaction error: " + data.error);
       return;
     }
 
     transactionModal.style.display = "none";
     transactionIdInput.value = "";
-    selectedProductId = null;
+    currentProductId = null;
 
-    showAlert("Payment confirmed! Your order is now being processed. Await delivery.");
+    showAlert("Payment confirmed! Your order is being processed.");
   })
-  .catch(() => showAlert("Error submitting payment confirmation. Please try again."));
+  .catch(() => showAlert("Error submitting payment confirmation. Try again."));
 };
 
-if (whatsappFaqBtn) {
-  whatsappFaqBtn.onclick = () => {
-    const faqMessage = encodeURIComponent("I need assistance or more info.");
-    const whatsappUrl = `https://wa.me/254712472601?text=${faqMessage}`;
-    window.open(whatsappUrl, "_blank");
-  };
-}
-
+// Initial load calls
 loadProducts();
+loadPurchases();
+loadClientProducts();
