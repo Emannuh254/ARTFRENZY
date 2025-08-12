@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ArtFrenzy</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <h1>ArtFrenzy</h1>
+  <button id="whatsappFaqBtn">FAQ / Help</button> <!-- renamed to match JS -->
+</header>
+
+<main>
+    <section id="products" class="product-grid"></section>
+</main>
+
+<!-- Buyer Info Modal -->
+<div id="locationModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle" aria-describedby="locationModalDesc">
+  <div class="modal-content">
+    <h2 id="locationModalTitle">Complete Your Purchase</h2>
+    <input type="text" id="buyerName" placeholder="Your Name" autocomplete="name" />
+    <input type="text" id="buyerPhone" placeholder="Phone (2547xxxxxxxx)" autocomplete="tel" />
+    <textarea id="dropLocation" placeholder="Drop-off Location"></textarea>
+
+    <div class="modal-actions">
+      <button id="confirmBuy">Confirm Purchase</button>
+      <button id="cancelBuy">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div id="customAlert" class="custom-alert hidden" role="alert" aria-live="assertive" aria-modal="true">
+  <p id="alertMessage"></p>
+  <button id="closeAlertBtn" aria-label="Close alert">OK</button>
+</div>
+
+<!-- Transaction ID Modal -->
+<div id="transactionModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle" aria-describedby="transactionModalDesc">
+  <div class="modal-content">
+    <h2 id="transactionModalTitle">Enter Mpesa Transaction ID</h2>
+    <input
+      type="text"
+      id="transactionId"
+      placeholder="Enter Mpesa Transaction ID (e.g. S12345XYZ)"
+      autocomplete="off"
+    />
+    <!-- Optional: if you want to keep, you must send this input value to backend -->
+    <!--
+    <label for="paymentTime">Purchase Time:</label>
+    <input type="datetime-local" id="paymentTime" />
+    -->
+
+    <div class="modal-actions">
+      <button id="confirmTransaction">Submit Payment</button>
+      <button id="cancelTransaction">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2025 ArtFrenzy</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
