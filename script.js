@@ -1,4 +1,5 @@
 const productsContainer = document.getElementById("products");
+const lnk = "https://art-frenzy-admin.onrender.com";  // removed leading space
 
 const locationModal = document.getElementById("locationModal");
 const dropLocationInput = document.getElementById("dropLocation");
@@ -32,7 +33,7 @@ function copyToClipboard(text) {
 
 async function loadProducts() {
   try {
-    const res = await fetch("http://localhost:8000/admin/products");
+    const res = await fetch(`${lnk}/products`);  // assuming /products endpoint
     const products = await res.json();
 
     productsContainer.innerHTML = products
@@ -51,7 +52,6 @@ async function loadProducts() {
       btn.onclick = () => {
         selectedProductId = Number(btn.dataset.id);
         locationModal.style.display = "block";
-        // Focus on buyerName input when modal opens
         buyerNameInput.focus();
       };
     });
@@ -75,7 +75,6 @@ document.getElementById("confirmBuy").onclick = () => {
     return;
   }
 
-  // Validate Kenya phone number format: starts with 2547 + 8 digits
   if (!/^2547\d{8}$/.test(buyerPhone)) {
     showAlert("Please enter a valid phone number in the format 2547xxxxxxxx.");
     return;
@@ -83,7 +82,7 @@ document.getElementById("confirmBuy").onclick = () => {
 
   const purchaseTime = new Date().toISOString();
 
-  fetch("http://localhost:8000/purchase", {
+  fetch(`${lnk}/purchase`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -104,11 +103,9 @@ document.getElementById("confirmBuy").onclick = () => {
     locationModal.style.display = "none";
     [dropLocationInput, buyerNameInput, buyerPhoneInput].forEach(input => input.value = "");
 
-    // Copy Mpesa number to clipboard
     const mpesaNumber = "254712472601"; // Your business Mpesa number
     copyToClipboard(mpesaNumber);
 
-    // Show transaction modal for confirmation code
     transactionIdInput.value = "";
     transactionModal.style.display = "block";
     transactionIdInput.focus();
@@ -131,7 +128,7 @@ document.getElementById("confirmTransaction").onclick = () => {
 
   const paymentTime = new Date().toISOString();
 
-  fetch("http://localhost:8000/submit-transaction", {
+  fetch(`${lnk}/submit-transaction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
