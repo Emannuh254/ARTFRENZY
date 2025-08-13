@@ -1,3 +1,4 @@
+const API_BASE = "https://art-frenzy-admin.onrender.com";
 
 const productsContainer = document.getElementById("products");
 const locationModal = document.getElementById("locationModal");
@@ -25,8 +26,10 @@ closeAlertBtn.onclick = () => alertBox.classList.add("hidden");
 // Load products for client view
 async function loadClientProducts() {
   try {
-    const res = await fetch(`${API_BASE}/products`);  // Note: your backend needs this endpoint or use /admin/products and filter if needed
+    const res = await fetch(`${API_BASE}/admin/products`);
     const products = await res.json();
+
+    if (products.error) throw new Error(products.error);
 
     productsContainer.innerHTML = products
       .map(({ id, title, price, image_url, stock }) => `
@@ -48,7 +51,7 @@ async function loadClientProducts() {
       };
     });
   } catch (err) {
-    showAlert("Failed to load products.");
+    showAlert("Failed to load products: " + err.message);
   }
 }
 
@@ -59,7 +62,7 @@ document.getElementById("cancelBuy").onclick = () => {
   buyerPhoneInput.value = "";
 };
 
-document.getElementById("confirmBuy").onclick = () => {
+document.getElementById("confirmBuy").onclick = async () => {
   const buyerName = buyerNameInput.value.trim();
   const buyerPhone = buyerPhoneInput.value.trim();
   const dropLocation = dropLocationInput.value.trim();
@@ -76,37 +79,42 @@ document.getElementById("confirmBuy").onclick = () => {
 
   const purchaseTime = new Date().toISOString();
 
-  fetch(`${API_BASE}/purchase`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      product_id: currentProductId,
-      buyer_name: buyerName,
-      buyer_phone: buyerPhone,
-      drop_location: dropLocation,
-      purchase_time: purchaseTime,
-    }),
-  })
-  .then(res => res.json())
-  .then(data => {
+  try {
+    const res = await fetch(`${API_BASE}/purchase`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        buyerName,
+        buyerPhone,
+        dropLocation,
+        purchaseTime,
+        productId: currentProductId,
+      }),
+    });
+
+    const data = await res.json();
+
     if (data.error) {
       showAlert("Purchase error: " + data.error);
       return;
     }
+
     locationModal.style.display = "none";
     dropLocationInput.value = "";
     buyerNameInput.value = "";
     buyerPhoneInput.value = "";
 
     const mpesaNumber = "254712472601"; // Your Mpesa number
-    navigator.clipboard.writeText(mpesaNumber).then(() => {
-      showAlert(`Mpesa number ${mpesaNumber} copied to clipboard! Please pay and paste confirmation code.`);
-      transactionIdInput.value = "";
-      transactionModal.style.display = "block";
-      transactionIdInput.focus();
-    });
-  })
-  .catch(() => showAlert("Error submitting purchase. Try again."));
+    await navigator.clipboard.writeText(mpesaNumber);
+
+    showAlert(`Mpesa number ${mpesaNumber} copied to clipboard! Please pay and paste confirmation code.`);
+    transactionIdInput.value = "";
+    transactionModal.style.display = "block";
+    transactionIdInput.focus();
+
+  } catch {
+    showAlert("Error submitting purchase. Try again.");
+  }
 };
 
 document.getElementById("cancelTransaction").onclick = () => {
@@ -114,7 +122,7 @@ document.getElementById("cancelTransaction").onclick = () => {
   transactionIdInput.value = "";
 };
 
-document.getElementById("confirmTransaction").onclick = () => {
+document.getElementById("confirmTransaction").onclick = async () => {
   const transactionId = transactionIdInput.value.trim();
 
   if (!transactionId) {
@@ -124,17 +132,19 @@ document.getElementById("confirmTransaction").onclick = () => {
 
   const paymentTime = new Date().toISOString();
 
-  fetch(`${API_BASE}/submit-transaction`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      product_id: currentProductId,
-      transaction_id: transactionId,
-      payment_time: paymentTime,
-    }),
-  })
-  .then(res => res.json())
-  .then(data => {
+  try {
+    const res = await fetch(`${API_BASE}/submit-transaction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        product_id: currentProductId, // backend expects this key with underscore
+        transaction_id: transactionId,
+        payment_time: paymentTime,
+      }),
+    });
+
+    const data = await res.json();
+
     if (data.error) {
       showAlert("Transaction error: " + data.error);
       return;
@@ -145,11 +155,11 @@ document.getElementById("confirmTransaction").onclick = () => {
     currentProductId = null;
 
     showAlert("Payment confirmed! Your order is being processed.");
-  })
-  .catch(() => showAlert("Error submitting payment confirmation. Try again."));
+
+  } catch {
+    showAlert("Error submitting payment confirmation. Try again.");
+  }
 };
 
-// Initial load calls
-loadProducts();
-loadPurchases();
+// Initial load call
 loadClientProducts();

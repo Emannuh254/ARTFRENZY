@@ -1,69 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ArtFrenzy</title>
-<link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtFrenzy Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #000;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .container {
+            padding: 15px;
+        }
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .product-card div {
+            padding: 10px;
+        }
+        .product-card button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+        }
+        .product-card button:hover {
+            background: #333;
+        }
+        .order-form {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        .order-form input, .order-form button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            border: 1px solid #ccc;
+        }
+        .order-form button {
+            background: #000;
+            color: #fff;
+            border: none;
+        }
+        .help-btn {
+            display: block;
+            text-align: center;
+            margin: 20px auto;
+            background: #000;
+            color: #fff;
+            padding: 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            width: fit-content;
+        }
+        .help-btn:hover {
+            background: #333;
+        }
+    </style>
 </head>
 <body>
-<header>
-  <h1>ArtFrenzy</h1>
-  <button id="whatsappFaqBtn">FAQ / Help</button> <!-- renamed to match JS -->
-</header>
+    <header>ArtFrenzy Store</header>
+    <div class="container">
+        <h2>Available Products</h2>
+        <div class="product-list" id="products"></div>
 
-<main>
-    <section id="products" class="product-grid"></section>
-</main>
+        <form class="order-form" id="orderForm">
+            <h3>Place Your Order</h3>
+            <input type="hidden" id="productId">
+            <input type="text" id="buyerName" placeholder="Your Name" required>
+            <input type="tel" id="buyerPhone" placeholder="Phone Number" required>
+            <input type="number" id="quantity" placeholder="Quantity" min="1" required>
+            <input type="text" id="dropLocation" placeholder="Drop-off Location" required>
+            <input type="text" id="transactionId" placeholder="M-Pesa Transaction ID" required>
+            <button type="submit">Submit Order</button>
+        </form>
 
-<!-- Buyer Info Modal -->
-<div id="locationModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="locationModalTitle" aria-describedby="locationModalDesc">
-  <div class="modal-content">
-    <h2 id="locationModalTitle">Complete Your Purchase</h2>
-    <input type="text" id="buyerName" placeholder="Your Name" autocomplete="name" />
-    <input type="text" id="buyerPhone" placeholder="Phone (2547xxxxxxxx)" autocomplete="tel" />
-    <textarea id="dropLocation" placeholder="Drop-off Location"></textarea>
-
-    <div class="modal-actions">
-      <button id="confirmBuy">Confirm Purchase</button>
-      <button id="cancelBuy">Cancel</button>
+        <a class="help-btn" href="https://wa.me/254XXXXXXXXX" target="_blank">FAQ / Help via WhatsApp</a>
     </div>
-  </div>
-</div>
 
-<!-- Custom Alert Modal -->
-<div id="customAlert" class="custom-alert hidden" role="alert" aria-live="assertive" aria-modal="true">
-  <p id="alertMessage"></p>
-  <button id="closeAlertBtn" aria-label="Close alert">OK</button>
-</div>
+    <script>
+        const API_BASE = "http://localhost:8000";
+        const productsContainer = document.getElementById("products");
+        const orderForm = document.getElementById("orderForm");
+        const productIdField = document.getElementById("productId");
 
-<!-- Transaction ID Modal -->
-<div id="transactionModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle" aria-describedby="transactionModalDesc">
-  <div class="modal-content">
-    <h2 id="transactionModalTitle">Enter Mpesa Transaction ID</h2>
-    <input
-      type="text"
-      id="transactionId"
-      placeholder="Enter Mpesa Transaction ID (e.g. S12345XYZ)"
-      autocomplete="off"
-    />
-    <!-- Optional: if you want to keep, you must send this input value to backend -->
-    <!--
-    <label for="paymentTime">Purchase Time:</label>
-    <input type="datetime-local" id="paymentTime" />
-    -->
+        async function fetchProducts() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/products`);
+                const products = await res.json();
+                productsContainer.innerHTML = "";
+                products.forEach(prod => {
+                    const card = document.createElement("div");
+                    card.className = "product-card";
+                    card.innerHTML = `
+                        <img src="${prod.image_url}" alt="${prod.title}">
+                        <div>
+                            <h3>${prod.title}</h3>
+                            <p>Price: $${prod.price}</p>
+                            <p>Stock: ${prod.stock}</p>
+                            ${prod.is_offer ? `<p>Offer: $${prod.offer_price}</p>` : ""}
+                        </div>
+                        <button onclick="startOrder(${prod.id})">Order Now</button>
+                    `;
+                    productsContainer.appendChild(card);
+                });
+            } catch (err) {
+                console.error("Error loading products", err);
+            }
+        }
 
-    <div class="modal-actions">
-      <button id="confirmTransaction">Submit Payment</button>
-      <button id="cancelTransaction">Cancel</button>
-    </div>
-  </div>
-</div>
+        function startOrder(productId) {
+            productIdField.value = productId;
+            orderForm.style.display = "block";
+            window.scrollTo({ top: orderForm.offsetTop, behavior: "smooth" });
+        }
 
-<footer>
-  <p>© 2025 ArtFrenzy</p>
-</footer>
+        orderForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const orderData = {
+                product_id: parseInt(productIdField.value),
+                buyer_name: document.getElementById("buyerName").value,
+                buyer_phone: document.getElementById("buyerPhone").value,
+                quantity: parseInt(document.getElementById("quantity").value),
+                drop_location: document.getElementById("dropLocation").value,
+                transaction_id: document.getElementById("transactionId").value
+            };
 
-<script src="script.js"></script>
+            try {
+                const res = await fetch(`${API_BASE}/purchase`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Order placed successfully!");
+                    orderForm.reset();
+                    orderForm.style.display = "none";
+                } else {
+                    alert(data.error || "Error placing order");
+                }
+            } catch (err) {
+                console.error("Order error", err);
+            }
+        });
+
+        fetchProducts();
+    </script>
 </body>
 </html>
