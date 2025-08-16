@@ -51,7 +51,9 @@ function showToast(message, type = "info", duration = 3000) {
 // ---------------- Helper: format image URL ----------------
 function formatImageUrl(path) {
     if (!path) return "https://via.placeholder.com/250x250?text=No+Image";
-    return `${API_BASE}/uploads/${encodeURIComponent(path.replace(/\\/g, '/'))}`;
+    // Strip any leading 'uploads/' in case backend returns full path
+    const filename = path.replace(/^uploads[\\/]/, '').replace(/\\/g, '/');
+    return `${API_BASE}/uploads/${encodeURIComponent(filename)}`;
 }
 
 // ---------------- Load Products ----------------
