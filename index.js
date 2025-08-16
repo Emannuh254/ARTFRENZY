@@ -4,6 +4,12 @@ const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
 const selectedProductId = document.getElementById("selectedProductId");
 
+// Generate or get unique client ID
+if (!localStorage.getItem("client_id")) {
+    localStorage.setItem("client_id", crypto.randomUUID());
+}
+const clientId = localStorage.getItem("client_id");
+
 // Load products
 async function loadProducts() {
     productsContainer.innerHTML = "Loading...";
@@ -55,7 +61,9 @@ orderForm.addEventListener("submit", async e => {
         buyer_name: document.getElementById("buyerName").value,
         buyer_phone: document.getElementById("buyerPhone").value,
         drop_location: document.getElementById("dropLocation").value,
-        transaction_id: document.getElementById("transactionId").value
+        transaction_id: document.getElementById("transactionId").value,
+        client_id: clientId,
+        time: new Date().toISOString() // capture order time
     };
     try {
         const res = await fetch(`${API_BASE}/admin/add-purchase`, {
