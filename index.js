@@ -1,4 +1,4 @@
-const API_BASE = "https://art-frenzy-admin-6.onrender.com";
+const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // your Render backend
 const productsContainer = document.getElementById("products");
 const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
@@ -68,12 +68,16 @@ async function loadProducts() {
 
         products.forEach(p => {
             const stock = parseInt(p.stock) || 0;
+            const imgSrc = p.image_url
+                ? p.image_url.startsWith("http") ? p.image_url : `${API_BASE}/${p.image_url}`
+                : "";
+
             const card = document.createElement("div");
             card.className = "product-card";
 
             card.innerHTML = `
                 ${stock === 0 ? '<div class="sold-badge">Sold Out</div>' : ''}
-                <img src="${p.image_url || ''}" alt="${p.title || 'Product'}" style="width:250px; height:auto;"/>
+                <img src="${imgSrc}" alt="${p.title || 'Product'}" style="width:250px; height:auto;"/>
                 <h3>${p.title || 'Untitled'}</h3>
                 <p>KES ${p.price || '0'}</p>
                 <p>Stock: ${stock}</p>
