@@ -1,4 +1,4 @@
-const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // your backend URL
+const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // backend URL
 const productsContainer = document.getElementById("products");
 const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
@@ -38,10 +38,8 @@ function showToast(message, type = "info", duration = 3000) {
     toast.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
     toast.style.opacity = "0";
     toast.style.transition = "opacity 0.3s ease";
-
     toastContainer.appendChild(toast);
     requestAnimationFrame(() => { toast.style.opacity = "1"; });
-
     setTimeout(() => {
         toast.style.opacity = "0";
         toast.addEventListener("transitionend", () => toast.remove());
@@ -51,7 +49,7 @@ function showToast(message, type = "info", duration = 3000) {
 // ---------------- Helper: format image URL ----------------
 function formatImageUrl(path) {
     if (!path) return "https://via.placeholder.com/250x250?text=No+Image";
-    // Strip any leading 'uploads/' in case backend returns full path
+    // Remove leading 'uploads/' if present to avoid double paths
     const filename = path.replace(/^uploads[\\/]/, '').replace(/\\/g, '/');
     return `${API_BASE}/uploads/${encodeURIComponent(filename)}`;
 }
@@ -100,14 +98,12 @@ async function loadProducts() {
             `;
 
             const btn = card.querySelector("button");
-            if (btn && stock > 0) {
-                btn.addEventListener("click", () => openOrderModal(p.id));
-            }
+            if (btn && stock > 0) btn.addEventListener("click", () => openOrderModal(p.id));
 
             productsContainer.appendChild(card);
         });
 
-        // Flex container styling for responsiveness
+        // Flex container styling
         productsContainer.style.display = "flex";
         productsContainer.style.flexWrap = "wrap";
         productsContainer.style.justifyContent = "center";
