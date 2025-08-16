@@ -44,10 +44,12 @@
     text-align: center;
     padding: 1rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0; /* for fade-in */
+    animation: fadeIn 0.5s forwards;
   }
   .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(255,255,255,0.1);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(255,255,255,0.15);
   }
   .product-card img {
     max-width: 100%;
@@ -94,6 +96,10 @@
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 3px rgba(255,255,255,0.2);}
     20%, 24%, 55% { opacity: 0.8; text-shadow: 0 0 10px rgba(255,255,255,0.5);}
   }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   /* ---------- Responsive ---------- */
   @media(max-width: 500px){
@@ -129,7 +135,7 @@
 </div>
 
 <script>
-const API_BASE = "https://art-frenzy-admin.onrender.com";
+const API_BASE = "https://art-frenzy-admin-3.onrender.com";
 const productsContainer = document.getElementById("products");
 const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
@@ -146,9 +152,10 @@ async function loadProducts() {
             productsContainer.innerHTML = "<p style='text-align:center;'>No products available.</p>";
             return;
         }
-        products.forEach(p => {
+        products.forEach((p, index) => {
             const card = document.createElement("div");
             card.className = "product-card";
+            card.style.animationDelay = `${index * 0.1}s`; // stagger fade-in
             card.innerHTML = `
                 <img src="${p.thumb_url || p.image_url}" alt="${p.title}" />
                 <h3>${p.title}</h3>
@@ -203,9 +210,9 @@ orderForm.addEventListener("submit", async e => {
         console.error(err);
         alert("Network error. Try again.");
     }
-});
+}
 
-// Init
+// Initialize
 loadProducts();
 </script>
 
