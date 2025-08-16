@@ -1,69 +1,46 @@
-/* ---------- Body & Reset ---------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
 body {
-  background: #000;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+header {
+  background-color: #111;
   color: #fff;
-  min-height: 100vh;
+  padding: 1rem;
+  text-align: center;
+}
+
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 800px;
+  margin: 2rem auto;
   padding: 0 1rem;
 }
 
-/* ---------- Header ---------- */
-header {
-  background: #111;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
-}
-header h1 {
-  font-size: 2rem;
-  letter-spacing: 1px;
-  background: linear-gradient(90deg, #fff, #aaa, #fff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: flicker 2s infinite;
-}
-
-/* ---------- Orders Grid ---------- */
-.orders {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
 .order-card {
-  background: #111;
-  border-radius: 10px;
+  background-color: #fff;
+  border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 3px 10px rgba(255, 255, 255, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-.order-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
-}
+
 .order-card h3 {
+  margin: 0 0 0.5rem;
   font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  color: #111;
 }
+
 .order-card p {
+  margin: 0.3rem 0;
   font-size: 0.95rem;
-  color: #aaa;
-  margin: 0.2rem 0;
 }
 
-/* ---------- Animations ---------- */
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 3px rgba(255,255,255,0.2);}
-  20%, 24%, 55% { opacity: 0.8; text-shadow: 0 0 10px rgba(255,255,255,0.5);}
-}
-
-/* ---------- Responsive ---------- */
-@media(max-width: 500px){
-  .order-card h3 { font-size: 1rem; }
-  .order-card p { font-size: 0.85rem; }
+@media (max-width: 600px) {
+  .orders-container {
+    padding: 0 0.5rem;
+  }
 }

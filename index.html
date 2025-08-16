@@ -7,31 +7,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header>
+    <h1>🎨 Art Frenzy</h1>
+    <a href="orders.html" class="orders-link">My Orders</a>
+  </header>
 
-<header>
-  <h1>🎨 Art Frenzy</h1>
-</header>
-
-<div class="faq-link">
-  <a href="https://wa.me/254700000000" target="_blank">Need Help? Chat on WhatsApp</a>
-</div>
-
-<div class="products" id="products"></div>
-
-<div class="modal" id="orderModal">
-  <div class="modal-content">
-    <h2>Complete Your Order</h2>
-    <form id="orderForm">
-      <input type="hidden" id="selectedProductId" />
-      <input type="text" id="buyerName" placeholder="Your Name" required>
-      <input type="tel" id="buyerPhone" placeholder="Phone Number" required>
-      <input type="text" id="dropLocation" placeholder="Drop-off Location" required>
-      <input type="text" id="transactionId" placeholder="M-Pesa Transaction ID" required>
-      <button type="submit">Place Order</button>
-    </form>
+  <div class="faq-link">
+    <a href="https://wa.me/254700000000" target="_blank">Need Help? Chat on WhatsApp</a>
   </div>
-</div>
 
-<script src="index.js"></script>
+  <div id="products" class="products-container"></div>
+
+  <!-- Order Modal -->
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <h2>Complete Your Order</h2>
+      <form id="orderForm">
+        <input type="hidden" id="selectedProductId" />
+        <input type="text" id="buyerName" placeholder="Your Name" required>
+        <input type="tel" id="buyerPhone" placeholder="Phone Number" required>
+        <input type="text" id="dropLocation" placeholder="Drop-off Location" required>
+        <input type="text" id="transactionId" placeholder="M-Pesa Transaction ID" required>
+        <button type="submit">Place Order</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="index.js"></script>
 </body>
 </html>
