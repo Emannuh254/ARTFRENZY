@@ -1,4 +1,4 @@
-const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // your Render backend
+const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // your backend URL
 const productsContainer = document.getElementById("products");
 const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
@@ -48,6 +48,12 @@ function showToast(message, type = "info", duration = 3000) {
     }, duration);
 }
 
+// ---------------- Helper: format image URL ----------------
+function formatImageUrl(path) {
+    if (!path) return "https://via.placeholder.com/250x250?text=No+Image";
+    return `${API_BASE}/uploads/${encodeURIComponent(path.replace(/\\/g, '/'))}`;
+}
+
 // ---------------- Load Products ----------------
 async function loadProducts() {
     if (!productsContainer) return console.error("Products container not found");
@@ -68,16 +74,21 @@ async function loadProducts() {
 
         products.forEach(p => {
             const stock = parseInt(p.stock) || 0;
-            const imgSrc = p.image_url
-                ? p.image_url.startsWith("http") ? p.image_url : `${API_BASE}/${p.image_url}`
-                : "";
+            const imgSrc = formatImageUrl(p.image_url);
 
             const card = document.createElement("div");
             card.className = "product-card";
+            card.style.textAlign = "center";
+            card.style.border = "1px solid #ccc";
+            card.style.padding = "1rem";
+            card.style.borderRadius = "10px";
+            card.style.margin = "1rem";
+            card.style.maxWidth = "280px";
+            card.style.flex = "1 1 250px";
 
             card.innerHTML = `
-                ${stock === 0 ? '<div class="sold-badge">Sold Out</div>' : ''}
-                <img src="${imgSrc}" alt="${p.title || 'Product'}" style="width:250px; height:auto;"/>
+                ${stock === 0 ? '<div style="color:red;font-weight:bold;">Sold Out</div>' : ''}
+                <img src="${imgSrc}" alt="${p.title || 'Product'}" style="width:100%; height:auto; border-radius:8px;"/>
                 <h3>${p.title || 'Untitled'}</h3>
                 <p>KES ${p.price || '0'}</p>
                 <p>Stock: ${stock}</p>
@@ -93,6 +104,12 @@ async function loadProducts() {
 
             productsContainer.appendChild(card);
         });
+
+        // Flex container styling for responsiveness
+        productsContainer.style.display = "flex";
+        productsContainer.style.flexWrap = "wrap";
+        productsContainer.style.justifyContent = "center";
+
     } catch (err) {
         console.error("Error loading products:", err);
         productsContainer.innerHTML = "<p style='text-align:center; color:red;'>Failed to load products.</p>";
