@@ -1,4 +1,4 @@
-const API_BASE = "https://art-frenzy-admin-6.onrender.com"; // Your Flask app port
+const API_BASE = "https://art-frenzy-admin-6.onrender.com";
 const productsContainer = document.getElementById("products");
 const orderModal = document.getElementById("orderModal");
 const orderForm = document.getElementById("orderForm");
@@ -32,7 +32,7 @@ function showToast(message, type = "info", duration = 3000) {
     toast.textContent = message;
     toast.style.background = type === "error" ? "#aa0000" : "#0ff";
     toast.style.color = type === "error" ? "#fff" : "#000";
-    toast.style.padding = "0.75rem 1.25rem";
+    toast.style.padding = "0.75rem 1.5rem";
     toast.style.borderRadius = "8px";
     toast.style.fontWeight = "bold";
     toast.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
@@ -40,10 +40,7 @@ function showToast(message, type = "info", duration = 3000) {
     toast.style.transition = "opacity 0.3s ease";
 
     toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => {
-        toast.style.opacity = "1";
-    });
+    requestAnimationFrame(() => { toast.style.opacity = "1"; });
 
     setTimeout(() => {
         toast.style.opacity = "0";
@@ -76,7 +73,7 @@ async function loadProducts() {
 
             card.innerHTML = `
                 ${stock === 0 ? '<div class="sold-badge">Sold Out</div>' : ''}
-                <img src="${p.image_url || ''}" alt="${p.title || 'Product'}" />
+                <img src="${p.image_url || ''}" alt="${p.title || 'Product'}" style="width:250px; height:auto;"/>
                 <h3>${p.title || 'Untitled'}</h3>
                 <p>KES ${p.price || '0'}</p>
                 <p>Stock: ${stock}</p>
@@ -133,7 +130,7 @@ if (orderForm) {
         if (submitBtn) submitBtn.disabled = true;
 
         try {
-            const res = await fetch(`${API_BASE}/all_p?client_id=${clientId}`, {
+            const res = await fetch(`${API_BASE}/add-purchase`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
