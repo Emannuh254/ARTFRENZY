@@ -1,4 +1,4 @@
-const API_BASE = "https://art-frenzy-admin-3.onrender.com";
+const API_BASE = "https://art-frenzy-admin-6.onrender.com";
 const ordersContainer = document.getElementById("ordersContainer");
 
 // Get or generate client ID
@@ -11,7 +11,7 @@ if (!clientId) {
 async function loadOrders() {
     ordersContainer.innerHTML = "Loading your orders...";
     try {
-        const res = await fetch(`${API_BASE}/client/orders/${clientId}`);
+        const res = await fetch(`${API_BASE}/all_p${clientId}`);
         const orders = await res.json();
 
         if (!orders || orders.length === 0) {

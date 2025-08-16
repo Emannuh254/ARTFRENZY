@@ -1,22 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Orders - Art Frenzy</title>
-  <link rel="stylesheet" href="orders.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .order-card { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    h3 { margin: 0 0 5px; }
+    p { margin: 3px 0; }
+    .status { font-weight: bold; }
+</style>
 </head>
 <body>
-  <header>
-    <h1>🎨 My Orders</h1>
-  </header>
+<h1>My Orders</h1>
+<div id="ordersContainer">Loading orders...</div>
 
-  <main>
-    <div id="ordersContainer" class="orders-container">
-      Loading your orders...
-    </div>
-  </main>
+<script>
+const API_BASE = "https://art-frenzy-admin-6.onrender.com";
+const ordersContainer = document.getElementById("ordersContainer");
 
-  <script src="orders.js"></script>
+// Get or generate client ID
+let clientId = localStorage.getItem("client_id");
+if (!clientId && crypto?.randomUUID) {
+    clientId = crypto.randomUUID();
+    localStorage.setItem("client_id", clientId);
+}
+
+// Load only this client's orders
+async function loadOrders() {
+    if (!ordersContainer) return;
+
+    ordersContainer.innerHTML = "<p style='text-align:center;'>Loading your orders...</p>";
+
+    try {
+        const res = await fetch(`${API_BASE}/all_p?client_id=${clientId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+
+        const orders = await res.json();
+
+        if (!Array.isArray(orders) || orders.length === 0) {
+            ordersContainer.innerHTML = "<p style='text-align:center;'>No orders yet.</p>";
+            return;
+        }
+
+        ordersContainer.innerHTML = "";
+
+        orders.forEach(o => {
+            const div = document.createElement("div");
+            div.className = "order-card";
+            div.innerHTML = `
+                <h3>${o.product_title || 'Product #' + o.product_id}</h3>
+                <p><strong>Name:</strong> ${o.buyer_name || '-'}</p>
+                <p><strong>Phone:</strong> ${o.buyer_phone || '-'}</p>
+                <p><strong>Location:</strong> ${o.drop_location || '-'}</p>
+                <p><strong>Transaction ID:</strong> ${o.transaction_id || '-'}</p>
+                <p><strong>Status:</strong> <span class="status">${o.completed ? 'Completed ✅' : 'Pending ⏳'}</span></p>
+                <p><strong>Time:</strong> ${o.purchase_time ? new Date(o.purchase_time).toLocaleString() : '-'}</p>
+            `;
+            ordersContainer.appendChild(div);
+        });
+    } catch(err) {
+        console.error(err);
+        ordersContainer.innerHTML = "<p style='text-align:center; color:red;'>Failed to load your orders.</p>";
+    }
+}
+
+// Load orders on page load
+document.addEventListener("DOMContentLoaded", loadOrders);
+</script>
 </body>
 </html>
